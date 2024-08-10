@@ -1,5 +1,6 @@
 package com.rko.pms.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rko.pms.domain.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -8,9 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Builder
@@ -24,22 +23,39 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstname;
+    private String name;
 
-    private String lastname;
-
-    @Column(unique = true)
-    @NotBlank(message = "Username must be")
+    @Column(unique = true, nullable = false)
+    @NotBlank(message = "Username must not be blank")
     private String username;
 
-    @NotBlank(message = "Username must be")
+    @Column(nullable = false)
+    @NotBlank(message = "Password must not be blank")
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @ManyToMany(mappedBy = "projectMembers")
-    private Set<Project> projects;
+    @ManyToMany(mappedBy = "projectMembers", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<Project> projects = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<Project> ownedProjects = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -75,4 +91,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

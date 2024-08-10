@@ -1,5 +1,6 @@
 package com.rko.pms.dto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,10 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterRequestDTO {
 
-    private String firstname;
+    private String name;
 
-    private String lastname;
-
+    @Column(unique = true, nullable = false)
     @NotBlank(message = "Username is mandatory")
     private String username;
 

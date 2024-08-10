@@ -1,7 +1,8 @@
 package com.rko.pms.controller;
 
 import com.rko.pms.domain.Project;
-import com.rko.pms.service.ProjectService;
+import com.rko.pms.dto.ProjectDTO;
+import com.rko.pms.service.ProjectServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,16 +14,23 @@ import java.util.List;
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 public class ProjectController {
-    private final ProjectService projectService;
+    private final ProjectServiceImpl projectService;
 
-    @GetMapping
-    public List<Project> getProjects(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
-        return projectService.getProjectsByDateRange(startDate, endDate);
+    @PostMapping("/create")
+    public ResponseEntity<?> createProject(@RequestBody ProjectDTO project) {
+        try {
+            ProjectDTO createdProject = projectService.createProject(project);
+            return ResponseEntity.ok(createdProject);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PostMapping
-    public Project createProject(@RequestBody Project project) {
-        return projectService.createProject(project);
+    @GetMapping
+    public List<Project> getProjects(@RequestParam("start") String start, @RequestParam("end") String end) {
+        LocalDateTime startDate = LocalDateTime.parse(start);
+        LocalDateTime endDate = LocalDateTime.parse(end);
+        return projectService.findAllProjectsInRange(startDate, endDate);
     }
 
     @PutMapping("/{id}")

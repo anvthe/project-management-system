@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ProjectStatus {
-    PRE(0), START(1), END(3);
+    PRE(0), START(1), END(2);
 
     private final int value;
 
