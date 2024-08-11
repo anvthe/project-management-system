@@ -69,12 +69,4 @@ public class Project {
     @Transient
     private Set<Long> projectMemberIds;
 
-    public void assignUsers(UserRepository userRepository) {
-        if (ownerId != null) {
-            this.owner = userRepository.findById(ownerId).orElse(null);
-        }
-        if (projectMemberIds != null && !projectMemberIds.isEmpty()) {
-            this.projectMembers = userRepository.findAllById(projectMemberIds).stream().collect(Collectors.toSet());
-        }
-    }
 }

@@ -11,13 +11,4 @@ public enum ProjectStatus {
     ProjectStatus(int value) {
         this.value = value;
     }
-
-    public static ProjectStatus fromValue(int value) {
-        for (ProjectStatus status : ProjectStatus.values()) {
-            if (status.value == value) {
-                return status;
-            }
-        }
-        throw new IllegalArgumentException("Unknown status value: " + value);
-    }
 }

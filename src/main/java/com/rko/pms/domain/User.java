@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rko.pms.domain.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,11 +28,13 @@ public class User implements UserDetails {
     private String name;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Username must not be blank")
+    @NotBlank
+    @Size(min = 5, max = 30, message = "Username must be between 5 and 30 characters & Username must not be blank")
     private String username;
 
     @Column(nullable = false)
     @NotBlank(message = "Password must not be blank")
+    @Pattern(regexp = "^(?=.*[!@#$%^&*]).{5,}$", message = "Password must be at least 5 characters long and contain at least one special character")
     private String password;
 
     @Enumerated(EnumType.STRING)

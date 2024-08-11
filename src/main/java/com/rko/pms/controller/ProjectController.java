@@ -1,10 +1,12 @@
 package com.rko.pms.controller;
 
-import com.rko.pms.domain.Project;
+import com.rko.pms.ValidationUtil;
 import com.rko.pms.dto.ProjectDTO;
 import com.rko.pms.service.ProjectServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,28 +19,31 @@ public class ProjectController {
     private final ProjectServiceImpl projectService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createProject(@RequestBody ProjectDTO project) {
+    public ResponseEntity<?> createProject(@RequestBody @Valid ProjectDTO projectDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(ValidationUtil.getErrorMessages(result));
+        }
         try {
-            ProjectDTO createdProject = projectService.createProject(project);
+            ProjectDTO createdProject = projectService.createProject(projectDTO);
             return ResponseEntity.ok(createdProject);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping
-    public List<Project> getProjects(@RequestParam("start") String start, @RequestParam("end") String end) {
+    @GetMapping("/list")
+    public List<ProjectDTO> getProjects(@RequestParam("start") String start, @RequestParam("end") String end) {
         LocalDateTime startDate = LocalDateTime.parse(start);
         LocalDateTime endDate = LocalDateTime.parse(end);
         return projectService.findAllProjectsInRange(startDate, endDate);
     }
 
-    @PutMapping("/{id}")
-    public Project updateProject(@PathVariable Long id, @RequestBody Project project) {
-        return projectService.updateProject(id, project);
+    @PutMapping("edit/{id}")
+    public ProjectDTO updateProject(@PathVariable Long id, @RequestBody ProjectDTO projectDTO) {
+        return projectService.updateProject(id, projectDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.ok("Project deleted successfully");
