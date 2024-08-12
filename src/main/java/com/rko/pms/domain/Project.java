@@ -1,7 +1,6 @@
 package com.rko.pms.domain;
 
 import com.rko.pms.domain.enums.ProjectStatus;
-import com.rko.pms.repository.UserRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
