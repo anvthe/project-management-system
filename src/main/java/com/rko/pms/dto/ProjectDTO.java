@@ -23,9 +23,6 @@ public class ProjectDTO {
     @Size(max = 1000, message = "Intro must not exceed 1000 characters")
     private String intro;
 
-    @NotNull(message = "Owner ID is required")
-    private Long ownerId;
-
     @NotNull(message = "Project status is required")
     private ProjectStatus status;
 
@@ -37,4 +34,6 @@ public class ProjectDTO {
 
     @Size(max = 5)
     private Set<String> projectMemberUsernames;
+
+    private String owner;
 }

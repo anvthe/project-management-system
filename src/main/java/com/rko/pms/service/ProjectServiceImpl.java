@@ -35,7 +35,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public ProjectDTO createProject(ProjectDTO projectDTO) {
+    public ProjectDTO createProject(ProjectDTO projectDTO, String username) {
         if (projectDTO.getProjectMemberUsernames() != null && projectDTO.getProjectMemberUsernames().size() > 5) {
             throw new IllegalArgumentException("A project cannot have more than 5 members.");
         }
@@ -47,19 +47,35 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStartDateTime(projectDTO.getStartDateTime());
         project.setEndDateTime(projectDTO.getEndDateTime());
 
-        User owner = userRepository.findById(projectDTO.getOwnerId()).orElseThrow(() -> new IllegalArgumentException("Owner not found"));
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
         project.setOwner(owner);
 
         if (projectDTO.getProjectMemberUsernames() != null && !projectDTO.getProjectMemberUsernames().isEmpty()) {
-            Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream().map(username -> userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found: " + username))).collect(Collectors.toSet());
+            Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream()
+                    .map(memberUsername -> userRepository.findByUsername(memberUsername)
+                            .orElseThrow(() -> new IllegalArgumentException("User not found: " + memberUsername)))
+                    .collect(Collectors.toSet());
             project.setProjectMembers(projectMembers);
         }
 
         Project savedProject = projectRepository.save(project);
 
-        Set<String> usernames = savedProject.getProjectMembers().stream().map(User::getUsername).collect(Collectors.toSet());
+        Set<String> usernames = savedProject.getProjectMembers().stream()
+                .map(User::getUsername)
+                .collect(Collectors.toSet());
 
-        return new ProjectDTO(savedProject.getId(), savedProject.getName(), savedProject.getIntro(), savedProject.getOwner().getId(), savedProject.getStatus(), savedProject.getStartDateTime(), savedProject.getEndDateTime(), usernames);
+
+        return new ProjectDTO(
+                savedProject.getId(),
+                savedProject.getName(),
+                savedProject.getIntro(),
+                savedProject.getStatus(),
+                savedProject.getStartDateTime(),
+                savedProject.getEndDateTime(),
+                usernames,
+                savedProject.getOwner().getUsername()
+        );
     }
 
     public List<ProjectDTO> findAllProjectsInRange(LocalDateTime start, LocalDateTime end) {
@@ -76,7 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setId(project.getId());
         dto.setName(project.getName());
         dto.setIntro(project.getIntro());
-        dto.setOwnerId(project.getOwner().getId());
+        dto.setOwner(project.getOwner().getUsername());
         dto.setStatus(project.getStatus());
         dto.setStartDateTime(project.getStartDateTime());
         dto.setEndDateTime(project.getEndDateTime());

@@ -6,6 +6,7 @@ import com.rko.pms.service.ProjectServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,9 @@ public class ProjectController {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(ValidationUtil.getErrorMessages(result));
         }
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         try {
-            ProjectDTO createdProject = projectService.createProject(projectDTO);
+            ProjectDTO createdProject = projectService.createProject(projectDTO, username);
             return ResponseEntity.ok(createdProject);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

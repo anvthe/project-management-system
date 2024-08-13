@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ProjectService {
     List<ProjectDTO> findAllProjectsInRange(LocalDateTime start, LocalDateTime end);
-    ProjectDTO createProject(ProjectDTO projectDTO);
+    ProjectDTO createProject(ProjectDTO projectDTO, String username);
     ProjectDTO updateProject(Long id, ProjectDTO projectDTO);
     void deleteProject(Long id);
 }
