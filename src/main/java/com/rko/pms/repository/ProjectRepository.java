@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Repository
 public interface ProjectRepository extends CrudRepository<Project, Long> {
     List<Project> findAllByStartDateBetween(@Param("start") LocalDate start, @Param("end") LocalDate end);
