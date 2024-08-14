@@ -20,10 +20,10 @@ CREATE TABLE projects (
 );
 
 
-CREATE TABLE `project_members` (
+CREATE TABLE project_members (
                                    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                                    project_id INT UNSIGNED,
                                    user_id INT UNSIGNED,
-                                   FOREIGN KEY (project_id) REFERENCES projects(`id`),
+                                   FOREIGN KEY (project_id) REFERENCES projects(id),
                                    FOREIGN KEY (user_id) REFERENCES users(id)
 );
