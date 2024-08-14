@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -26,11 +26,9 @@ public class ProjectDTO {
     @NotNull(message = "Project status is required")
     private ProjectStatus status;
 
-    @NotNull(message = "Start date and time are required")
-    private LocalDateTime startDateTime;
+    private LocalDate startDate;
 
-    @NotNull(message = "End date and time are required")
-    private LocalDateTime endDateTime;
+    private LocalDate endDate;
 
     @Size(max = 5)
     private Set<String> projectMemberUsernames;

@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -35,14 +35,21 @@ public class ProjectController {
 
     @GetMapping("/list")
     public List<ProjectDTO> getProjects(@RequestParam("start") String start, @RequestParam("end") String end) {
-        LocalDateTime startDate = LocalDateTime.parse(start);
-        LocalDateTime endDate = LocalDateTime.parse(end);
+        LocalDate startDate = LocalDate.parse(start);
+        LocalDate endDate = LocalDate.parse(end);
         return projectService.findAllProjectsInRange(startDate, endDate);
     }
 
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> getProject(@PathVariable Long id) {
+        projectService.findProjectById(id);
+        return ResponseEntity.ok().body(projectService.findProjectById(id));
+    }
+
     @PutMapping("edit/{id}")
-    public ProjectDTO updateProject(@PathVariable Long id, @RequestBody ProjectDTO projectDTO) {
-        return projectService.updateProject(id, projectDTO);
+    public ResponseEntity<?> updateProject(@PathVariable Long id, @RequestBody ProjectDTO projectDTO) {
+        projectService.updateProject(id, projectDTO);
+        return ResponseEntity.ok().body(projectService.findProjectById(id));
     }
 
     @DeleteMapping("delete/{id}")

@@ -10,7 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,8 +44,8 @@ public class ProjectServiceImpl implements ProjectService {
         project.setName(projectDTO.getName());
         project.setIntro(projectDTO.getIntro());
         project.setStatus(projectDTO.getStatus());
-        project.setStartDateTime(projectDTO.getStartDateTime());
-        project.setEndDateTime(projectDTO.getEndDateTime());
+        project.setStartDate(projectDTO.getStartDate());
+        project.setEndDate(projectDTO.getEndDate());
 
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -71,15 +71,15 @@ public class ProjectServiceImpl implements ProjectService {
                 savedProject.getName(),
                 savedProject.getIntro(),
                 savedProject.getStatus(),
-                savedProject.getStartDateTime(),
-                savedProject.getEndDateTime(),
+                savedProject.getStartDate(),
+                savedProject.getEndDate(),
                 usernames,
                 savedProject.getOwner().getUsername()
         );
     }
 
-    public List<ProjectDTO> findAllProjectsInRange(LocalDateTime start, LocalDateTime end) {
-        List<Project> projects = projectRepository.findAllByStartDateTimeBetween(start, end);
+    public List<ProjectDTO> findAllProjectsInRange(LocalDate start, LocalDate end) {
+        List<Project> projects = projectRepository.findAllByStartDateBetween(start, end);
         return projects.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
@@ -94,12 +94,28 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setIntro(project.getIntro());
         dto.setOwner(project.getOwner().getUsername());
         dto.setStatus(project.getStatus());
-        dto.setStartDateTime(project.getStartDateTime());
-        dto.setEndDateTime(project.getEndDateTime());
+        dto.setStartDate(project.getStartDate());
+        dto.setEndDate(project.getEndDate());
         dto.setProjectMemberUsernames(project.getProjectMembers().stream().map(User::getUsername).collect(Collectors.toSet()));
         return dto;
     }
 
+
+    public ProjectDTO findProjectById(Long id) {
+        Project project = projectRepository.findById(id).orElseThrow();
+        ProjectDTO dtos = new ProjectDTO();
+        dtos.setId(project.getId());
+        dtos.setName(project.getName());
+        dtos.setIntro(project.getIntro());
+        dtos.setOwner(project.getOwner().getUsername());
+        dtos.setStatus(project.getStatus());
+        dtos.setStartDate(project.getStartDate());
+        dtos.setEndDate(project.getEndDate());
+        dtos.setProjectMemberUsernames(project.getProjectMembers().stream().map(User::getUsername).collect(Collectors.toSet()));
+        return dtos;
+    }
+
+    @Override
     public ProjectDTO updateProject(Long id, ProjectDTO projectDTO) {
         validateProjectOwnership(id);
 
@@ -108,8 +124,15 @@ public class ProjectServiceImpl implements ProjectService {
         existingProject.setName(projectDTO.getName());
         existingProject.setIntro(projectDTO.getIntro());
         existingProject.setStatus(projectDTO.getStatus());
-        existingProject.setStartDateTime(projectDTO.getStartDateTime());
-        existingProject.setEndDateTime(projectDTO.getEndDateTime());
+        existingProject.setStartDate(projectDTO.getStartDate());
+        existingProject.setEndDate(projectDTO.getEndDate());
+
+        Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream()
+                .map(username -> userRepository.findByUsername(username)
+                        .orElseThrow(() -> new RuntimeException("User not found with username: " + username)))
+                .collect(Collectors.toSet());
+        existingProject.setProjectMembers(projectMembers);
+
         Project updateProject = projectRepository.save(existingProject);
 
         return convetToProjectDTO(updateProject);

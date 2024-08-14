@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -36,9 +36,9 @@ public class Project {
     @Column(nullable = false)
     private ProjectStatus status;
 
-    private LocalDateTime startDateTime;
+    private LocalDate startDate;
 
-    private LocalDateTime endDateTime;
+    private LocalDate endDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
