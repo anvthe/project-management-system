@@ -46,6 +46,7 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+
     private Set<User> projectMembers = new HashSet<>();
 
     @Override

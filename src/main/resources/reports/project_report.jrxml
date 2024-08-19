@@ -1,0 +1,34 @@
+<!-- Created with Jaspersoft Studio version 7.0.0.final using JasperReports Library version 7.0.0-b478feaa9aab4375eba71de77b4ca138ad2f62aa  -->
+<jasperReport name="Blank_A4_2" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="83e982cc-eaf3-4984-9208-74e88f56e0b0">
+    <property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="My_DB"/>
+    <query language="SQL"><![CDATA[select * from projects]]></query>
+    <field name="name" class="java.lang.String">
+        <property name="com.jaspersoft.studio.field.name" value="name"/>
+        <property name="com.jaspersoft.studio.field.label" value="name"/>
+        <property name="com.jaspersoft.studio.field.tree.path" value="projects"/>
+    </field>
+    <group name="name">
+        <expression><![CDATA[$F{name}]]></expression>
+    </group>
+    <background splitType="Stretch"/>
+    <title height="79" splitType="Stretch"/>
+    <pageHeader height="35" splitType="Stretch"/>
+    <columnHeader height="61" splitType="Stretch">
+        <element kind="staticText" uuid="9bb230d7-9293-4f2a-a822-996d653ea59a" x="145" y="0" width="100" height="30">
+            <text><![CDATA[name]]></text>
+            <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2a9de906-f1d0-4727-8058-e49a7b73f6f0"/>
+        </element>
+    </columnHeader>
+    <detail>
+        <band height="125" splitType="Stretch">
+            <element kind="textField" uuid="1bb807d6-6c10-4d79-b059-685fe4d7f1ef" x="145" y="38" width="100" height="30">
+                <expression><![CDATA[$F{name}]]></expression>
+                <property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2a9de906-f1d0-4727-8058-e49a7b73f6f0"/>
+            </element>
+        </band>
+    </detail>
+    <columnFooter height="45" splitType="Stretch"/>
+    <pageFooter height="54" splitType="Stretch"/>
+    <summary height="42" splitType="Stretch"/>
+</jasperReport>

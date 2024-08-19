@@ -4,23 +4,35 @@ import com.rko.pms.UserUtil;
 import com.rko.pms.domain.User;
 import com.rko.pms.domain.Project;
 import com.rko.pms.dto.ProjectDTO;
+
+import com.rko.pms.projection.ProjectReports;
 import com.rko.pms.repository.ProjectRepository;
 import com.rko.pms.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final UserUtil userUtil;
+
+    public ProjectServiceImpl(ProjectRepository projectRepository, UserRepository userRepository, UserUtil userUtil) {
+        this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
+        this.userUtil = userUtil;
+    }
 
     public void validateProjectOwnership(Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new IllegalArgumentException("Project not found with ID: " + projectId));
@@ -47,35 +59,20 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStartDate(projectDTO.getStartDate());
         project.setEndDate(projectDTO.getEndDate());
 
-        User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User owner = userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("User not found"));
         project.setOwner(owner);
 
         if (projectDTO.getProjectMemberUsernames() != null && !projectDTO.getProjectMemberUsernames().isEmpty()) {
-            Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream()
-                    .map(memberUsername -> userRepository.findByUsername(memberUsername)
-                            .orElseThrow(() -> new IllegalArgumentException("User not found: " + memberUsername)))
-                    .collect(Collectors.toSet());
+            Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream().map(memberUsername -> userRepository.findByUsername(memberUsername).orElseThrow(() -> new IllegalArgumentException("User not found: " + memberUsername))).collect(Collectors.toSet());
             project.setProjectMembers(projectMembers);
         }
 
         Project savedProject = projectRepository.save(project);
 
-        Set<String> usernames = savedProject.getProjectMembers().stream()
-                .map(User::getUsername)
-                .collect(Collectors.toSet());
+        Set<String> usernames = savedProject.getProjectMembers().stream().map(User::getUsername).collect(Collectors.toSet());
 
 
-        return new ProjectDTO(
-                savedProject.getId(),
-                savedProject.getName(),
-                savedProject.getIntro(),
-                savedProject.getStatus(),
-                savedProject.getStartDate(),
-                savedProject.getEndDate(),
-                usernames,
-                savedProject.getOwner().getUsername()
-        );
+        return new ProjectDTO(savedProject.getId(), savedProject.getName(), savedProject.getIntro(), savedProject.getStatus(), savedProject.getStartDate(), savedProject.getEndDate(), usernames, savedProject.getOwner().getUsername());
     }
 
     public List<ProjectDTO> findAllProjectsInRange(LocalDate start, LocalDate end) {
@@ -127,10 +124,7 @@ public class ProjectServiceImpl implements ProjectService {
         existingProject.setStartDate(projectDTO.getStartDate());
         existingProject.setEndDate(projectDTO.getEndDate());
 
-        Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream()
-                .map(username -> userRepository.findByUsername(username)
-                        .orElseThrow(() -> new RuntimeException("User not found with username: " + username)))
-                .collect(Collectors.toSet());
+        Set<User> projectMembers = projectDTO.getProjectMemberUsernames().stream().map(username -> userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found with username: " + username))).collect(Collectors.toSet());
         existingProject.setProjectMembers(projectMembers);
 
         Project updateProject = projectRepository.save(existingProject);
@@ -146,5 +140,25 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Long id) {
         validateProjectOwnership(id);
         projectRepository.deleteById(id);
+    }
+
+
+    public String getProjectsReport() throws IOException, JRException {
+        List<ProjectReports> projects = projectRepository.getReports();
+        String path = "E:\\Reports";
+        File file = new ClassPathResource("reports/project_report.jrxml").getFile();
+        JasperReport jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(projects);
+        String reportFileName = new SimpleDateFormat("yyyy.MM.dd").format(new java.util.Date());
+        String reportPath = path + "/report[" + reportFileName + "].pdf";
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("ReportTitle", "Project Report");
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+        JasperExportManager.exportReportToPdfFile(jasperPrint, reportPath);
+
+        return reportPath;
     }
 }

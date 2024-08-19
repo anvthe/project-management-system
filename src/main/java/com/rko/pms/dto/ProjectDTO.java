@@ -1,6 +1,7 @@
 package com.rko.pms.dto;
 
 import com.rko.pms.domain.enums.ProjectStatus;
+import jakarta.persistence.ElementCollection;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -31,6 +32,7 @@ public class ProjectDTO {
     private LocalDate endDate;
 
     @Size(max = 5)
+    @ElementCollection
     private Set<String> projectMemberUsernames;
 
     private String owner;

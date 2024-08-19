@@ -19,6 +19,9 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {
+		url "https://jaspersoft.jfrog.io/artifactory/third-party-ce-artifacts/"
+	}
 }
 
 dependencies {
@@ -36,7 +39,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
-
+	implementation 'net.sf.jasperreports:jasperreports:6.11.0'
 }
 
 tasks.named('test') {

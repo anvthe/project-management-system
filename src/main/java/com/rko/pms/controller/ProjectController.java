@@ -2,9 +2,12 @@ package com.rko.pms.controller;
 
 import com.rko.pms.ValidationUtil;
 import com.rko.pms.dto.ProjectDTO;
+import com.rko.pms.projection.ProjectReports;
+import com.rko.pms.repository.ProjectRepository;
 import com.rko.pms.service.ProjectServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
@@ -18,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProjectController {
     private final ProjectServiceImpl projectService;
+    private final ProjectRepository projectRepository;
 
     @PostMapping("/create")
     public ResponseEntity<?> createProject(@RequestBody @Valid ProjectDTO projectDTO, BindingResult result) {
@@ -56,5 +60,16 @@ public class ProjectController {
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.ok("Project deleted successfully");
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<?> generateProjectsReport() {
+        try {
+            String reportPath = projectService.getProjectsReport();
+            return ResponseEntity.ok("Report generated successfully. You can find it here: " + reportPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating report: " + e.getMessage());
+        }
     }
 }
